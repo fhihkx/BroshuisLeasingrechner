@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Broshuis Leasingrechner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Lato', sans-serif;
+      background-color: #fdfdfd;
+      background-image: linear-gradient(to bottom right, #fff, #f1f1f1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .calculator {
+      background-color: white;
+      border: 4px solid #ffcc00;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.2);
+      padding: 3rem 4rem 11rem;
+      max-width: 560px;
+      width: 90%;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 1rem;
+      color: #003d7c;
+      font-weight: 700;
+      font-size: 2rem;
+    }
+    h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      color: #333;
+      margin-bottom: 2rem;
+    }
+    label {
+      display: block;
+      text-align: left;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+      color: #222;
+      margin-top: 1.5rem;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #ffcc00;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-top: 1rem;
+    }
+    button:hover {
+      background-color: #e6b800;
+    }
+    .result {
+      font-weight: bold;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 6px;
+      font-size: 1.1rem;
+    }
+    .error {
+      color: #c62828;
+    }
+    .success {
+      color: #2e7d32;
+    }
+    .logo-bottom {
+      margin-top: 3rem;
+      max-width: 220px;
+      height: auto;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h1>Leasingrechner</h1>
+    <h2>Leasing Calculator</h2>
+
+    <label for="preis">Anschaffungspreis (€) / Purchase Price (€):</label>
+    <input type="number" id="preis" placeholder="z. B. 250000" />
+
+    <label for="laufzeit">Laufzeit (Monate) / Term (Months):</label>
+    <select id="laufzeit">
+      <option value="">Bitte wählen / Please select</option>
+      <option>36</option>
+      <option>48</option>
+      <option>60</option>
+      <option>72</option>
+      <option>84</option>
+    </select>
+
+    <label for="restwert">Restwert (%) / Residual Value (%):</label>
+    <select id="restwert">
+      <option value="">Bitte wählen / Please select</option>
+      <option>10</option>
+      <option>20</option>
+      <option>30</option>
+    </select>
+
+    <button onclick="berechneRate()">Berechnen / Calculate</button>
+
+    <div id="output" class="result"></div>
+    <img class="logo-bottom" src="broshuis-cleaned.png" alt="Broshuis Logo" />
+  </div>
+
+  <script>
+    const leasingFaktoren = {
+      "[10, 60]": 0.0178,
+      "[10, 72]": 0.0149,
+      "[10, 84]": 0.0130,
+      "[20, 48]": 0.0204,
+      "[20, 60]": 0.0175,
+      "[20, 72]": 0.0154,
+      "[30, 36]": 0.0278,
+      "[30, 48]": 0.0212,
+      "[30, 60]": 0.0182
+    };
+
+    function formatEuro(value) {
+      return value.toLocaleString('de-DE', {
+        style: 'currency',
+        currency: 'EUR'
+      });
+    }
+
+    function berechneRate() {
+      const preis = parseFloat(document.getElementById("preis").value);
+      const laufzeit = parseInt(document.getElementById("laufzeit").value);
+      const restwert = parseInt(document.getElementById("restwert").value);
+      const output = document.getElementById("output");
+
+      if (isNaN(preis) || isNaN(laufzeit) || isNaN(restwert)) {
+        output.textContent = "❗ Bitte alle Felder korrekt ausfüllen. / Please fill in all fields correctly.";
+        output.className = "result error";
+        return;
+      }
+
+      const key = `[${restwert}, ${laufzeit}]`;
+      const faktor = leasingFaktoren[key];
+
+      if (!faktor) {
+        output.textContent = "❌ Diese Kombination ist nicht gültig | This combination is not valid";
+        output.className = "result error";
+        return;
+      }
+
+      const rate = preis * faktor;
+      output.textContent = "✅ Monatliche Leasingrate / Monthly Lease Rate: " + formatEuro(rate);
+      output.className = "result success";
+    }
+  </script>
+</body>
+</html>
